@@ -1,5 +1,5 @@
 // Select your modem:
-//final codes 
+//final codes today
 #define TINY_GSM_MODEM_SIM800 
 #include <TinyGPS++.h>
 #include <TinyGsmClient.h> 
@@ -26,8 +26,6 @@ const String UPDATE_PATH = "gps_devices/" + String (DEVICE_ID); // firebase root
 // global variables 
 int count = 0; 
 String fireData = "";
-String previousData = "";
-
 
 #ifdef DUMP_AT_COMMANDS 
 #include <StreamDebugger.h> 
@@ -108,35 +106,36 @@ displayInfo ();
 }
 
 void displayInfo () 
-{
- start: 
+{ 
 Serial.print (F ("Realtime Loc:")); 
 if (gps.location.isValid ()) 
 { 
 Serial.print (gps.location.lat (), 6); 
-Serial.print (F (",")); 
+Serial.print (","); 
 Serial.print (gps.location.lng (), 6); 
-data(); 
+data();
+Serial.println ();  
+SerialAT.begin (modemBAUD); 
+updateData ();
 } 
 else 
 { 
-Serial.print (F ("INVALID"));
-delay (300);  
-goto start;
-} 
-Serial.println (); 
-SerialAT.begin (modemBAUD); 
-updateData (); 
+Serial.print ("INVALID");
+Serial.println ();
+delay (300); 
+ 
+ 
+}  
 }
 
 // connect to internet 
 void connection () { 
-test: 
+tes: 
 SerialMon.print (F ("Connection to Network ...")); 
 if (!modem.waitForNetwork ()) { 
 SerialMon.println ("failed"); 
 delay (300); 
-goto test; 
+goto tes; 
 } 
 SerialMon.println ("OK");
 
@@ -146,7 +145,7 @@ if (!modem.gprsConnect (apn, user, pass)) {
 SerialMon.println ("failed"); 
 delay (300);
 
-goto test; 
+goto tes; 
 } 
 SerialMon.println ("OK");
 
