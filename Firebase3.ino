@@ -1,5 +1,5 @@
 // Select your modem:
-//final codes today
+//final codes today+ ble
 #define TINY_GSM_MODEM_SIM800 
 #include <TinyGPS++.h>
 #include <TinyGsmClient.h> 
@@ -12,6 +12,12 @@
 #define gpsBAUD 9600 
 SoftwareSerial SerialAT (10, 11); // RX, the 
 SoftwareSerial ss (4, 3); // RX, TX serial GPS
+SoftwareSerial bleSerial(5,6,7);
+
+//----Global variables for the pins---//
+const int pin1 = 5; //OPEN
+const int pin2 = 6; //CLOSE
+const int pin3 = 7; //BOOT
 
 // Internet setting 
 const char apn [] = "internet"; 
@@ -41,6 +47,16 @@ HttpClient https(client, server, port);
 TinyGPSPlus gps;
 
 void setup () { 
+
+ Serial.begin(9600);
+ pinMode(pin1,OUTPUT);
+ pinMode(pin2,OUTPUT);
+ pinMode(pin3,OUTPUT);
+
+ digitalWrite(pin1,LOW);
+ digitalWrite(pin2,LOW);
+ digitalWrite(pin3,LOW);
+ 
   //set console baud rate ;
 SerialMon.begin (9600);
 delay (10); 
@@ -50,7 +66,9 @@ ss.begin (gpsBAUD); // open gps serial
 }
 
 void loop () {
-
+if (Serial.available()) {
+  ble ();
+  }
 if (ss.isListening ()) { 
 Serial.println ("gps listening"); 
 while (fireData.equals ("")) { 
@@ -62,6 +80,43 @@ fireData = "";
 ss.begin (gpsBAUD); 
 } 
 }
+
+void ble(){
+  
+  while(Serial.available() > 0){
+    char data = Serial.read();
+      if(data == 'A'){
+        if(digitalRead(pin1)==LOW){
+           digitalWrite(pin1,HIGH);
+           digitalWrite(pin2,LOW);
+           delay(2000);// wait 2 seconds    
+    }
+    }
+
+       if(data == 'C')
+     {
+       if(digitalRead(pin2)==LOW)
+       {
+         digitalWrite(pin1,LOW);
+         digitalWrite(pin2,HIGH);
+         delay(2000);// wait 2 seconds
+    }
+    }
+     if(data == 'B'){
+       if(digitalRead(pin3)==LOW){
+         digitalWrite(pin3,HIGH);
+         delay(2000);// wait 2 seconds
+        }else if (digitalRead(pin3)==HIGH){
+          digitalWrite(pin3,LOW);
+          delay(2000);// wait 2 seconds
+      }
+    }
+    }
+
+      digitalWrite(pin1,LOW);
+      digitalWrite(pin2,LOW);
+      digitalWrite(pin3,LOW);
+  }
 
 // send data to firebase 
 void sendData (const char* method, const String & path, const String & data, HttpClient* http) { 
