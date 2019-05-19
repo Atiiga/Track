@@ -5,7 +5,8 @@
 #include <TinyGsmClient.h> 
 #include <ArduinoHttpClient.h> 
 #include <SoftwareSerial.h>
- 
+#include <TimerOne.h>
+
 #define SerialMon Serial 
 #define DEVICE_ID "Keyless00001" 
 #define modemBAUD 9600 
@@ -60,15 +61,15 @@ void setup () {
   //set console baud rate ;
 SerialMon.begin (9600);
 delay (10); 
+Timer1.initialize(1000);
+Timer1.attachInterrupt(DoorsController); 
+delay (10); 
 initializeModem (); // check modem communication 
 connection(); // test internet connection 
 ss.begin (gpsBAUD); // open gps serial 
 }
 
 void loop () {
-if (Serial.available()) {
-  ble ();
-  }
 if (ss.isListening ()) { 
 Serial.println ("gps listening"); 
 while (fireData.equals ("")) { 
@@ -81,42 +82,46 @@ ss.begin (gpsBAUD);
 } 
 }
 
-void ble(){
-  
-  while(Serial.available() > 0){
-    char data = Serial.read();
-      if(data == 'A'){
-        if(digitalRead(pin1)==LOW){
-           digitalWrite(pin1,HIGH);
-           digitalWrite(pin2,LOW);
-           delay(2000);// wait 2 seconds    
-    }
-    }
+void DoorsController(){
+   if (Serial.available() > 0) {
 
-       if(data == 'C')
-     {
+  char data = Serial.read();
+  switch(data){
+    case 'A':
+      Serial.println ("in Open"); 
+      if(digitalRead(pin1)==LOW){
+       digitalWrite(pin1,HIGH);
+       digitalWrite(pin2,LOW);
+       delay(2000);// wait 2 seconds
+       }break;
+    case 'B':
+      Serial.println ("in Boot"); 
+
+       if(digitalRead(pin3)==LOW)
+       {
+         digitalWrite(pin3,HIGH);
+         delay(2000);// wait 2 seconds
+       }else if (digitalRead(pin3)==HIGH){
+          digitalWrite(pin3,LOW);
+          delay(2000);// wait 2 seconds
+
+      }break;
+     
+     case 'C':
+       Serial.println ("in Close"); 
        if(digitalRead(pin2)==LOW)
        {
          digitalWrite(pin1,LOW);
          digitalWrite(pin2,HIGH);
          delay(2000);// wait 2 seconds
-    }
-    }
-     if(data == 'B'){
-       if(digitalRead(pin3)==LOW){
-         digitalWrite(pin3,HIGH);
-         delay(2000);// wait 2 seconds
-        }else if (digitalRead(pin3)==HIGH){
-          digitalWrite(pin3,LOW);
-          delay(2000);// wait 2 seconds
-      }
-    }
-    }
-
+    }break;
+     }
       digitalWrite(pin1,LOW);
       digitalWrite(pin2,LOW);
       digitalWrite(pin3,LOW);
   }
+
+}
 
 // send data to firebase 
 void sendData (const char* method, const String & path, const String & data, HttpClient* http) { 
