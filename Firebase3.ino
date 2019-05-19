@@ -119,8 +119,10 @@ void DoorsController(){
       digitalWrite(pin1,LOW);
       digitalWrite(pin2,LOW);
       digitalWrite(pin3,LOW);
-  }
+        return;
 
+  }
+      return;
 }
 
 // send data to firebase 
@@ -218,20 +220,23 @@ sendData ("PUT", UPDATE_PATH, fireData, &https);
 
 // initialize the 
 void initializeModem () { 
+check: 
 SerialAT.begin (modemBAUD); 
 delay (3000); 
-SerialMon.println (F ("Initializing modem ...")); 
+SerialMon.println (F ("Initializing modem ..."));
 modem.restart();
 
 String modemInfo = modem.getModemInfo(); 
 SerialMon.print (F ("Modem:")); 
 SerialMon.println (modemInfo); 
 if (!modem.hasSSL()) { 
-SerialMon.println (F ("SSL is not supported by this modem")); 
-while (true) {delay (1000); } 
+SerialMon.println (F ("SSL is not supported by this modem"));
+while (true) {delay (1000);
+goto check;  
+} 
 } 
 Serial.println ("wait 10 seconds"); 
-delay(10000); 
+delay(10000);
 }
 
 // get gps data 
