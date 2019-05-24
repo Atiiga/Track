@@ -243,7 +243,7 @@ delay(10000);
 void data () { 
 fireData = ""; 
 fireData += "{"; 
-fireData += "\"Longitute\":\" "+ String (gps.location.lng (), 6) +" \"," ;  
-fireData += "\"Latitute\":\" "+ String (gps.location.lat (), 6) +" \"" ;
+fireData += "\"Longitude\":\" "+ String (gps.location.lng (), 6) +" \"," ;  
+fireData += "\"Latitude\":\" "+ String (gps.location.lat (), 6) +" \"" ;
 fireData += "}"; 
 } 
