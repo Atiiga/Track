@@ -215,7 +215,8 @@ SerialMon.println ("OK");
 
 // update the firebase 
 void updateData () { 
-sendData ("PUT", UPDATE_PATH, fireData, &https); 
+sendData ("PATCH", UPDATE_PATH, fireData, &https); //patch updates data while put replaces data
+                                                  
 }
 
 // initialize the 
